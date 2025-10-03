@@ -1,6 +1,7 @@
 # キー入力監視・記録アプリ
 
 シンプルで軽量なキーボード入力の監視・統計アプリケーションです。バックグラウンドで動作し、すべてのキー入力を記録・集計します。
+※このREADME.mdは生成AIを使用して作成されました。
 
 ![Version](https://img.shields.io/badge/version-1.0.0-blue)
 ![Python](https://img.shields.io/badge/python-3.12+-green)
