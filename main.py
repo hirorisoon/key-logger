@@ -95,7 +95,7 @@ class Database:
     def get_daily_stats(self, date=None):
         '''日付ごとの統計を取得'''
         if date is None:
-            date = datetime.now().strftime('%Y-%m-d')
+            date = datetime.now().strftime('%Y-%m-%d')
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
         cursor.execute('''
