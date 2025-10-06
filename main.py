@@ -120,6 +120,20 @@ class Database:
         conn.close()
         return results
 
+    def get_daily_stats(self):
+        '''日ごとの統計を取得'''
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT date, sum(count) as total
+                       FROM key_logs
+                       GROUP BY date
+                       ORDER BY date DESC
+        ''')
+        results = cursor.fetchall()
+        conn.close()
+        return results
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -155,6 +169,10 @@ class MainWindow(QMainWindow):
         # total
         self.total_tab = self.create_stats_tab()
         tabs.addTab(self.total_tab, '累計')
+
+        # daily
+        self.daily_tab = self.create_stats_tab()
+        tabs.addTab(self.daily_tab, '日別集計')
 
         # stats
         self.status_label = QLabel('監視中')
@@ -240,6 +258,10 @@ class MainWindow(QMainWindow):
             # total
             total_stats = self.db.get_total_stats()
             self.update_table(self.total_tab, total_stats)
+
+            # daily
+            daily_stats = self.db.get_daily_stats()
+            self.update_table(self.daily_tab, daily_stats)
 
             session_total = sum(self.current_session_keys.values())
             self.status_label.setText(f'監視中...(今回のセッション: {session_total}キー)')
