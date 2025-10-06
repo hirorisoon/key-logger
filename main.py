@@ -92,8 +92,8 @@ class Database:
         ressults = cursor.fetchall()
         conn.close()
         return ressults
-    def get_daily_stats(self, date=None):
-        '''日付ごとの統計を取得'''
+    def get_today_stats(self, date=None):
+        '''当日の統計を取得'''
         if date is None:
             date = datetime.now().strftime('%Y-%m-%d')
         conn = sqlite3.connect(self.db_path)
@@ -117,6 +117,20 @@ class Database:
                        ORDER BY date DESC
         ''')
         results = [row[0] for row in cursor.fetchall()]
+        conn.close()
+        return results
+
+    def get_daily_stats(self):
+        '''日ごとの統計を取得'''
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT date, sum(count) as total
+                       FROM key_logs
+                       GROUP BY date
+                       ORDER BY date DESC
+        ''')
+        results = cursor.fetchall()
         conn.close()
         return results
 
@@ -155,6 +169,10 @@ class MainWindow(QMainWindow):
         # total
         self.total_tab = self.create_stats_tab()
         tabs.addTab(self.total_tab, '累計')
+
+        # daily
+        self.daily_tab = self.create_stats_tab()
+        tabs.addTab(self.daily_tab, '日別集計')
 
         # stats
         self.status_label = QLabel('監視中')
@@ -230,16 +248,23 @@ class MainWindow(QMainWindow):
 
     def update_display(self):
         '''表示を更新'''
-        # today
-        today_stats = self.db.get_daily_stats()
-        self.update_table(self.today_tab, today_stats)
 
-        # total
-        total_stats = self.db.get_total_stats()
-        self.update_table(self.total_tab, total_stats)
+        # ウィンドウが表示されている間のみ表示を更新する
+        if self.isVisible():
+            # today
+            today_stats = self.db.get_today_stats()
+            self.update_table(self.today_tab, today_stats)
 
-        session_total = sum(self.current_session_keys.values())
-        self.status_label.setText(f'監視中...(今回のセッション: {session_total}キー)')
+            # total
+            total_stats = self.db.get_total_stats()
+            self.update_table(self.total_tab, total_stats)
+
+            # daily
+            daily_stats = self.db.get_daily_stats()
+            self.update_table(self.daily_tab, daily_stats)
+
+            session_total = sum(self.current_session_keys.values())
+            self.status_label.setText(f'監視中...(今回のセッション: {session_total}キー)')
 
     def update_table(self, tab_widget, data):
         '''テーブルを更新'''
