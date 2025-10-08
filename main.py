@@ -1,4 +1,6 @@
 import sys
+import os
+import ctypes
 import sqlite3
 from datetime import datetime
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
@@ -9,6 +11,14 @@ from PyQt6.QtGui import QIcon, QAction
 from pynput import keyboard
 from collections import defaultdict
 
+myappid = 'jp.riso.python.keylogger'
+ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+
+def get_resource_path(relative):
+    '''リソースのパスを取得'''
+    if hasattr(sys, '_MEIPASS'):
+        return os.path.join(sys._MEIPASS, relative)
+    return os.path.join(os.path.abspath('.'), relative)
 class KeyLogger(QThread):
     '''バックグラウンドでキー入力を監視するスレッド'''
     key_pressed = pyqtSignal(str)
@@ -206,7 +216,9 @@ class MainWindow(QMainWindow):
         '''システムトレイアイコンを初期化'''
         self.tray_icon = QSystemTrayIcon(self)
 
-        self.tray_icon.setIcon(self.style().standardIcon(self.style().StandardPixmap.SP_ComputerIcon))
+        # リソースからアイコン画像を取得
+        icon = QIcon(get_resource_path('icon_32x32.ico'))
+        self.tray_icon.setIcon(icon)
 
         # tray menu
         tray_menu = QMenu()
@@ -237,6 +249,7 @@ class MainWindow(QMainWindow):
             else:
                 self.show()
                 self.activateWindow()
+
     def start_logging(self):
         '''キーロギングを開始'''
         self.key_logger.key_pressed.connect(self.on_key_pressed)
@@ -301,6 +314,8 @@ class MainWindow(QMainWindow):
 def main():
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(False) # ウィンドウを閉じてもアプリは終了しないようにする
+    # タスクバーのアイコンを設定
+    app.setWindowIcon(QIcon(get_resource_path('icon_32x32.ico')))
 
     window = MainWindow()
     window.show()
