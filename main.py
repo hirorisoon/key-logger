@@ -217,7 +217,7 @@ class MainWindow(QMainWindow):
         self.tray_icon = QSystemTrayIcon(self)
 
         # リソースからアイコン画像を取得
-        icon = QIcon(get_resource_path('asset\\icon_32x32.ico'))
+        icon = QIcon(get_resource_path('icon_32x32.ico'))
         self.tray_icon.setIcon(icon)
 
         # tray menu
@@ -249,6 +249,7 @@ class MainWindow(QMainWindow):
             else:
                 self.show()
                 self.activateWindow()
+
     def start_logging(self):
         '''キーロギングを開始'''
         self.key_logger.key_pressed.connect(self.on_key_pressed)
@@ -314,7 +315,7 @@ def main():
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(False) # ウィンドウを閉じてもアプリは終了しないようにする
     # タスクバーのアイコンを設定
-    app.setWindowIcon(QIcon(get_resource_path('asset\\icon_32x32.ico')))
+    app.setWindowIcon(QIcon(get_resource_path('icon_32x32.ico')))
 
     window = MainWindow()
     window.show()
