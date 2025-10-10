@@ -1,7 +1,8 @@
 # キー入力監視・記録アプリ
 
 シンプルで軽量なキーボード入力の監視・統計アプリケーションです。バックグラウンドで動作し、すべてのキー入力を記録・集計します。
-※このREADME.mdは生成AIを使用して作成されました。
+
+※このREADME.mdの初範は生成AIを使用して作成されました。
 
 ![Version](https://img.shields.io/badge/version-1.0.0-blue)
 ![Python](https://img.shields.io/badge/python-3.12+-green)
@@ -41,8 +42,8 @@
 
 ```bash
 # リポジトリをクローン
-git clone https://github.com/yourusername/keylogger.git
-cd keylogger
+git clone https://github.com/hirorisoon/key-logger.git
+cd key-logger
 
 # 仮想環境を作成（推奨）
 python -m venv venv
@@ -90,16 +91,15 @@ python main.py
 ### プロジェクト構成
 
 ```
-keylogger_app/
+key-logger/
 ├── main.py              # メインアプリケーション
 ├── requirements.txt     # 依存関係
 ├── README.md           # このファイル
 ├── keylog.db           # データベース（自動生成）
-└── tests/              # テストファイル
-    ├── test_key_monitor.py
-    ├── test_database.py
-    ├── test_gui.py
-    └── test_tray.py
+├── test_key_monitor.py # テストファイル
+├── test_database.py    # テストファイル
+├── test_gui.py         # テストファイル
+└── test_tray.py        # テストファイル
 ```
 
 ### 主要な依存関係
