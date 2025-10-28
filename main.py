@@ -28,24 +28,44 @@ class KeyLogger(QThread):
         self.listener = None
         self.running = False
 
+    # 押されているキーを保持する変数
+    pressing_keys = {"dummy":False }
+
     def run(self):
         '''キー監視を開始'''
         self.running = True
-        with keyboard.Listener(on_press=self.on_press) as self.listener:
+        with keyboard.Listener(on_press=self.on_press, on_release=self.on_release) as self.listener:
             self.listener.join()
 
-    def on_press(self, key):
-        '''キーが押された時の処理'''
-        if not self.running:
-            return False
-
+    def __get_key_name(self, key):
         try:
             # 通常のキー
             key_name = key.char if hasattr(key, 'char') else str(key).replace('Key.', '')
         except:
             key_name = str(key).replace('Key.', '')
 
-        self.key_pressed.emit(key_name)
+        return key_name
+
+    def on_press(self, key):
+        '''キーが押された時の処理'''
+        if not self.running:
+            return False
+
+        key_name = self.__get_key_name(key)
+
+        if not key_name in self.pressing_keys:
+            self.pressing_keys[key_name] = True
+            self.key_pressed.emit(key_name)
+
+    def on_release(self, key):
+        '''キーが離された時の処理'''
+        if not self.running:
+            return False
+
+        key_name = self.__get_key_name(key)
+
+        if key_name in self.pressing_keys:
+            del self.pressing_keys[key_name]
 
     def stop(self):
         '''監視を停止'''
@@ -256,8 +276,11 @@ class MainWindow(QMainWindow):
         self.key_logger.start()
 
     def on_key_pressed(self, key_name):
-        self.current_session_keys[key_name] += 1
-        self.db.save_key(key_name)
+        if key_name != "":
+            if not key_name in self.key_logger.pressing_keys:
+                self.key_logger.pressing_keys[key_name] = True
+                self.current_session_keys[key_name] += 1
+            self.db.save_key(key_name)
 
     def update_display(self):
         '''表示を更新'''
